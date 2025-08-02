@@ -1,6 +1,6 @@
-import React from 'react';
 import { Container, Row, Col, Card, Button, Table, Badge, Form } from 'react-bootstrap';
 import { useCart } from '../context/CartContext';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Cart = () => {
   const { 
@@ -16,6 +16,8 @@ const Cart = () => {
   const subtotal = getCartTotal();
   const tax = subtotal * 0.08; // 8% tax
   const total = subtotal + shipping + tax;
+
+  const navigate =useNavigate()
 
   return (
     <div style={{ paddingTop: '76px' }}>
@@ -258,7 +260,7 @@ const Cart = () => {
               <div className="mt-3">
             <Button 
               variant="outline-primary" 
-              href="/products"
+              onClick={() => navigate('/products')}
               style={{ textDecoration: 'none' }}
             >
               <i className="fas fa-arrow-left me-2"></i>
