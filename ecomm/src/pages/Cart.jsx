@@ -39,7 +39,7 @@ const Cart = () => {
                   <i className="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
                   <h3>Your cart is empty</h3>
                   <p>Add some products to get started!</p>
-                  <Button variant="primary" href="/products">
+                  <Button variant="primary" href="/products" onClick={() => navigate('/products')}>
                     Continue Shopping
                   </Button>
                 </Card.Body>
