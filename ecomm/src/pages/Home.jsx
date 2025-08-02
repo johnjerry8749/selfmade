@@ -197,7 +197,7 @@ const Home = () => {
               <p className="lead text-white mb-4">
                 Exclusive designs crafted with attention to detail and quality
               </p>
-              <Button variant="success" size="lg" className="px-4  py-2">
+             <Button variant="success" size="lg" className="px-4 py-2">
                 <i className="fas fa-star me-2"></i>
                 Explore Premium
               </Button>
