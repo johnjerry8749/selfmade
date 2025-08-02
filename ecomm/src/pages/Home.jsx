@@ -1,4 +1,4 @@
-import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Carousel, Button, Card } from 'react-bootstrap';
 import ProductCard from '../components/ProductCard';
 
@@ -142,7 +142,8 @@ const Home = () => {
     { name: "Books", icon: "fas fa-book", color: "info" },
     { name: "Beauty", icon: "fas fa-spa", color: "secondary" }
   ];
-
+  
+  const navigate = useNavigate();
   return (
     <div style={{ paddingTop: '76px' }}>
       {/* Hero Carousel */}
@@ -296,7 +297,7 @@ const Home = () => {
               ))}
             </Row>
             <div className="text-center mt-4">
-              <Button variant="outline-primary" size="lg" onClick={() => window.location.href = '/products'}>
+              <Button variant="outline-primary" size="lg" onClick={() => navigate('/products')}>
                 View All Products
               </Button>
             </div>
