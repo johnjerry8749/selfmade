@@ -1,38 +1,66 @@
 import React, { useState } from 'react';
-import { Card, Button, Badge, Toast, ToastContainer, Modal, Row, Col } from 'react-bootstrap';
+import { Card, Badge, Button, Modal, Row, Col, Toast, ToastContainer } from 'react-bootstrap';
 import { useCart } from '../context/CartContext';
-import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
-  const { name, price, originalPrice, image, rating, discount } = product;
+  // Destructure product properties
+  const { 
+    name, 
+    image, 
+    price, 
+    originalPrice, 
+    discount, 
+    rating = 5 
+  } = product;
+
+  // State for modal, toast, and size selection
   const { addToCart, isInCart, getItemQuantity } = useCart();
-  const [showToast, setShowToast] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [error, setError] = useState(null);
-  const [selectedSize, setSelectedSize] = useState(''); // Add state for selected size
+  const [showToast, setShowToast] = useState(false);
+  const [selectedSize, setSelectedSize] = useState('');
+  const [error, setError] = useState('');
+
+  // Check if product is in cart (you'll need to implement this logic)
+  const productInCart = isInCart(product.id);
+  const cartQuantity = getItemQuantity(product.id);
 
   const handleAddToCart = () => {
-  // Create product object with selected size
-  const productWithSize = {
-    ...product,
-    selectedSize: selectedSize || 'M' // Default to 'M' if no size selected
-  };
-  
-  addToCart(productWithSize);
-  setShowToast(true);
-  setTimeout(() => setShowToast(false), 2000);
-};
-   const handleSize = (size) => {
-    setSelectedSize(size);
-    // console.log(`Selected size: ${size}`);
+    // Create product object with selected size
+    const productWithSize = {
+      ...product,
+      selectedSize: selectedSize || 'M' // Default to 'M' if no size selected
+    };
+    
+    addToCart(productWithSize);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2000);
   };
 
   const handleviewcart = () => {
     setShowModal(true);
-  }
+  };
 
-  const productInCart = isInCart(product.id);
-  const cartQuantity = getItemQuantity(product.id);
+  const sizeStyles = {
+    base: {
+      cursor: 'pointer',
+      padding: '8px 12px',
+      margin: '2px',
+      border: '1px solid #dee2e6',
+      borderRadius: '4px',
+      backgroundColor: 'transparent',
+      transition: 'all 0.2s ease-in-out',
+      display: 'inline-block',
+      minWidth: '40px',
+      textAlign: 'center',
+      userSelect: 'none'
+    },
+    selected: {
+      borderColor: '#0d6efd',
+      backgroundColor: '#e7f1ff',
+      color: '#0d6efd',
+      fontWeight: 'bold'
+    }
+  };
 
   return (
     <>
@@ -103,7 +131,7 @@ const ProductCard = ({ product }) => {
         </Card.Body>
       </Card>
 
-      {/* Quick View Modal */}
+      {/* Modal for Quick View */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
         <Modal.Header closeButton>
           <Modal.Title>{name}</Modal.Title>
@@ -164,18 +192,22 @@ const ProductCard = ({ product }) => {
                 </ul>
                 <div className="mt-3">
                   <h6>Select Size:</h6>
-                                   <div className="d-flex flex-wrap gap-1">
+                  <div className="d-flex flex-wrap gap-1">
                     {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((size) => (
-                      <span
+                      <div
                         key={size}
                         onClick={() => {
-                          handleSize(size);
+                          setSelectedSize(size);
                           setError(null); // Clear error when size is selected
+                        }}
+                        style={{
+                          ...sizeStyles.base,
+                          ...(selectedSize === size ? sizeStyles.selected : {})
                         }}
                         className={`size-selector ${selectedSize === size ? 'selected' : ''}`}
                       >
                         {size}
-                      </span>
+                      </div>
                     ))}
                   </div>
                   
@@ -198,7 +230,6 @@ const ProductCard = ({ product }) => {
               </div>
 
               {/* Action Buttons */}
-                           {/* Action Buttons */}
               <div className="d-flex gap-2">
                 <Button 
                   variant="primary" 
@@ -227,7 +258,7 @@ const ProductCard = ({ product }) => {
         </Modal.Body>
       </Modal>
 
-          {/* Toast notification */}
+      {/* Toast Notification */}
       <ToastContainer position="sticky-top" className="p-3" style={{ zIndex: 9999 }}>
         <Toast show={showToast} onClose={() => setShowToast(false)} bg="success">
           <Toast.Header>
