@@ -3,7 +3,7 @@ import { Navbar, Nav, Container, Badge, Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
-const Header = () => {
+  const Header = () => {
   const { getCartItemsCount } = useCart();
   const cartCount = getCartItemsCount();
   const navigate = useNavigate();
@@ -60,6 +60,10 @@ const Header = () => {
                 </span>
               )}
             </Button>
+             </Nav>
+          
+          {/* Login link - visible on all devices */}
+          <Nav>
             <Nav.Link as={Link} to="/login">
               <i className="fas fa-user me-1"></i>
               Login
