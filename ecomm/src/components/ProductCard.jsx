@@ -1,23 +1,42 @@
 import React, { useState } from 'react';
-import { Card, Button, Badge, Toast, ToastContainer } from 'react-bootstrap';
+import { Card, Button, Badge, Toast, ToastContainer, Modal, Row, Col } from 'react-bootstrap';
 import { useCart } from '../context/CartContext';
+import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
   const { name, price, originalPrice, image, rating, discount } = product;
   const { addToCart, isInCart, getItemQuantity } = useCart();
   const [showToast, setShowToast] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [error, setError] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(''); // Add state for selected size
 
   const handleAddToCart = () => {
-    addToCart(product);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
+  // Create product object with selected size
+  const productWithSize = {
+    ...product,
+    selectedSize: selectedSize || 'M' // Default to 'M' if no size selected
   };
+  
+  addToCart(productWithSize);
+  setShowToast(true);
+  setTimeout(() => setShowToast(false), 2000);
+};
+   const handleSize = (size) => {
+    setSelectedSize(size);
+    // console.log(`Selected size: ${size}`);
+  };
+
+  const handleviewcart = () => {
+    setShowModal(true);
+  }
 
   const productInCart = isInCart(product.id);
   const cartQuantity = getItemQuantity(product.id);
 
   return (
     <>
+      {/* Product Card */}
       <Card className="h-100 shadow-sm product-card">
         <div className="position-relative">
           <Card.Img 
@@ -76,7 +95,7 @@ const ProductCard = ({ product }) => {
               <i className={`fas ${productInCart ? 'fa-check' : 'fa-cart-plus'} me-2`}></i>
               {productInCart ? `Added (${cartQuantity})` : 'Add to Cart'}
             </Button>
-            <Button variant="outline-secondary" className="w-100">
+            <Button variant="outline-secondary" className="w-100" onClick={handleviewcart}>
               <i className="fas fa-eye me-2"></i>
               Quick View
             </Button>
@@ -84,15 +103,139 @@ const ProductCard = ({ product }) => {
         </Card.Body>
       </Card>
 
-      {/* Toast notification */}
-      <ToastContainer position="top-end" className="p-3" style={{ zIndex: 9999 }}>
+      {/* Quick View Modal */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Row>
+            <Col md={6}>
+              <img 
+                src={image} 
+                alt={name}
+                className="img-fluid rounded"
+                style={{ width: '100%', height: '300px', objectFit: 'cover' }}
+              />
+            </Col>
+            <Col md={6}>
+              {/* Rating */}
+              <div className="mb-3">
+                {[...Array(5)].map((_, i) => (
+                  <i 
+                    key={i}
+                    className={`fas fa-star ${i < rating ? 'text-warning' : 'text-muted'}`}
+                  ></i>
+                ))}
+                <small className="text-muted ms-1">({rating} stars)</small>
+              </div>
+              
+              {/* Price */}
+              <div className="mb-3">
+                <h4 className="text-primary mb-1">${price}</h4>
+                {originalPrice && (
+                  <span className="text-muted text-decoration-line-through me-2">
+                    ${originalPrice}
+                  </span>
+                )}
+                {discount && (
+                  <Badge bg="danger">
+                    -{discount}% OFF
+                  </Badge>
+                )}
+              </div>
+
+              {/* Description */}
+              <div className="mb-3">
+                <h6>Description:</h6>
+                <p className="text-muted">
+                  {product.description || "High-quality product with excellent features and reliable performance. Perfect for your needs with guaranteed satisfaction."}
+                </p>
+              </div>
+
+              {/* Product Details */}
+              <div className="mb-4">
+                <h6>Product Details:</h6>
+                <ul className="list-unstyled small text-muted">
+                  <li><strong>Category:</strong> {product.category || "General"}</li>
+                  <li><strong>Brand:</strong> {product.brand || "Generic"}</li>
+                  <li><strong>Stock:</strong> {product.stock || "In Stock"}</li>
+                  <li><strong>SKU:</strong> {product.sku || product.id}</li>
+                </ul>
+                <div className="mt-3">
+                  <h6>Select Size:</h6>
+                                   <div className="d-flex flex-wrap gap-1">
+                    {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((size) => (
+                      <span
+                        key={size}
+                        onClick={() => {
+                          handleSize(size);
+                          setError(null); // Clear error when size is selected
+                        }}
+                        className={`size-selector ${selectedSize === size ? 'selected' : ''}`}
+                      >
+                        {size}
+                      </span>
+                    ))}
+                  </div>
+                  
+                  {/* Success message */}
+                  {selectedSize && (
+                    <small className="text-success mt-2 d-block">
+                      <i className="fas fa-check me-1"></i>
+                      Selected: <strong>{selectedSize}</strong>
+                    </small>
+                  )}
+                  
+                  {/* Error message */}
+                  {error && (
+                    <small className="text-danger mt-2 d-block">
+                      <i className="fas fa-exclamation-triangle me-1"></i>
+                      {error}
+                    </small>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+                           {/* Action Buttons */}
+              <div className="d-flex gap-2">
+                <Button 
+                  variant="primary" 
+                  onClick={() => {
+                    if (!selectedSize) {
+                      setError("Please select a size before adding to cart.");
+                      return;
+                    }
+                    handleAddToCart();
+                    setShowModal(false);
+                  }}
+                  className="flex-fill"
+                >
+                  <i className="fas fa-cart-plus me-2"></i>
+                  Add to Cart {selectedSize && `(${selectedSize})`}
+                </Button>
+                <Button 
+                  variant="outline-secondary"
+                  onClick={() => setShowModal(false)}
+                >
+                  Close
+                </Button>
+              </div>
+            </Col>
+          </Row>
+        </Modal.Body>
+      </Modal>
+
+          {/* Toast notification */}
+      <ToastContainer position="sticky-top" className="p-3" style={{ zIndex: 9999 }}>
         <Toast show={showToast} onClose={() => setShowToast(false)} bg="success">
           <Toast.Header>
             <i className="fas fa-check-circle me-2 text-success"></i>
             <strong className="me-auto">Added to Cart!</strong>
           </Toast.Header>
           <Toast.Body className="text-white">
-            {name} has been added to your cart.
+            {name} {selectedSize && `(Size: ${selectedSize})`} has been added to your cart.
           </Toast.Body>
         </Toast>
       </ToastContainer>

@@ -60,7 +60,8 @@ const Cart = () => {
                   </Button>
                 </Card.Header>
                 <Card.Body className="p-0">
-                  <div className="table-responsive">
+                  {/* Desktop Table View */}
+                  <div className="table-responsive d-none d-md-block">
                     <Table className="mb-0">
                       <thead className="table-light">
                         <tr>
@@ -73,7 +74,7 @@ const Cart = () => {
                       </thead>
                       <tbody>
                         {cartItems.map((item) => (
-                          <tr key={item.id}>
+                          <tr key={`${item.id}-${item.selectedSize || 'no-size'}`}>
                             <td>
                               <div className="d-flex align-items-center">
                                 <img 
@@ -84,6 +85,13 @@ const Cart = () => {
                                 />
                                 <div>
                                   <h6 className="mb-0">{item.name}</h6>
+                                  {item.selectedSize && (
+                                    <div>
+                                      <Badge bg="secondary" className="me-2">
+                                        Size: {item.selectedSize}
+                                      </Badge>
+                                    </div>
+                                  )}
                                   {item.discount && (
                                     <small className="text-success">
                                       <i className="fas fa-tag me-1"></i>
@@ -110,14 +118,14 @@ const Cart = () => {
                                 <Button 
                                   variant="outline-secondary" 
                                   size="sm"
-                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                  onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedSize)}
                                 >
                                   -
                                 </Button>
                                 <Form.Control
                                   type="number"
                                   value={item.quantity}
-                                  onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 0)}
+                                  onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 0, item.selectedSize)}
                                   className="mx-2 text-center"
                                   style={{ width: '60px' }}
                                   min="0"
@@ -125,7 +133,7 @@ const Cart = () => {
                                 <Button 
                                   variant="outline-secondary" 
                                   size="sm"
-                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                  onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize)}
                                 >
                                   +
                                 </Button>
@@ -140,7 +148,7 @@ const Cart = () => {
                               <Button 
                                 variant="outline-danger" 
                                 size="sm"
-                                onClick={() => removeFromCart(item.id)}
+                                onClick={() => removeFromCart(item.id, item.selectedSize)}
                               >
                                 <i className="fas fa-trash"></i>
                               </Button>
@@ -150,15 +158,113 @@ const Cart = () => {
                       </tbody>
                     </Table>
                   </div>
+
+                  {/* Mobile Card View */}
+                  <div className="d-md-none">
+                    {cartItems.map((item) => (
+                      <div key={`${item.id}-${item.selectedSize || 'no-size'}`} className="border-bottom p-3">
+                        <div className="row g-3">
+                          {/* Product Image and Info */}
+                          <div className="col-4">
+                            <img 
+                              src={item.image} 
+                              alt={item.name}
+                              className="img-fluid rounded"
+                              style={{ width: '100%', height: '80px', objectFit: 'cover' }}
+                            />
+                          </div>
+                          <div className="col-8">
+                            <div className="d-flex justify-content-between align-items-start">
+                              <div className="flex-grow-1 me-2">
+                                <h6 className="mb-1 text-truncate" style={{ maxWidth: '150px' }}>
+                                  {item.name}
+                                </h6>
+                                {item.selectedSize && (
+                                  <Badge bg="secondary" className="mb-1" style={{ fontSize: '0.7rem' }}>
+                                    Size: {item.selectedSize}
+                                  </Badge>
+                                )}
+                                {item.discount && (
+                                  <div>
+                                    <small className="text-success">
+                                      <i className="fas fa-tag me-1"></i>
+                                      {item.discount}% off
+                                    </small>
+                                  </div>
+                                )}
+                              </div>
+                              <Button 
+                                variant="outline-danger" 
+                                size="sm"
+                                onClick={() => removeFromCart(item.id, item.selectedSize)}
+                                style={{ padding: '0.25rem 0.5rem' }}
+                              >
+                                <i className="fas fa-trash" style={{ fontSize: '0.8rem' }}></i>
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Price and Quantity Row */}
+                        <div className="row g-3 mt-2 align-items-center">
+                          <div className="col-6">
+                            <div>
+                              <span className="fw-bold">${item.price}</span>
+                              {item.originalPrice && (
+                                <div>
+                                  <small className="text-muted text-decoration-line-through">
+                                    ${item.originalPrice}
+                                  </small>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="col-6">
+                            <div className="d-flex align-items-center justify-content-end">
+                              <Button 
+                                variant="outline-secondary" 
+                                size="sm"
+                                onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedSize)}
+                                style={{ padding: '0.25rem 0.5rem' }}
+                              >
+                                -
+                              </Button>
+                              <span className="mx-2 fw-bold" style={{ minWidth: '30px', textAlign: 'center' }}>
+                                {item.quantity}
+                              </span>
+                              <Button 
+                                variant="outline-secondary" 
+                                size="sm"
+                                onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize)}
+                                style={{ padding: '0.25rem 0.5rem' }}
+                              >
+                                +
+                              </Button>
+                            </div>
+                            <div className="text-end mt-1">
+                              <small className="text-muted">Total: </small>
+                              <span className="fw-bold">
+                                ${(item.price * item.quantity).toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </Card.Body>
               </Card>
 
               <div className="mt-3">
-                <Button variant="outline-primary" href="/products">
-                  <i className="fas fa-arrow-left me-2"></i>
-                  Continue Shopping
-                </Button>
-              </div>
+            <Button 
+              variant="outline-primary" 
+              href="/products"
+              style={{ textDecoration: 'none' }}
+            >
+              <i className="fas fa-arrow-left me-2"></i>
+              Continue Shopping
+            </Button>
+          </div>
             </Col>
 
             <Col lg={4}>
